@@ -1,5 +1,5 @@
 [bits 16]
-;DISK IO
+;DISK IO in real mode 16 bit with bios interrupts
 
 ;The function load data from device storage to memory location
 ; param bx - memory address to load
@@ -24,8 +24,8 @@ disk_load:
 	
 
 disk_error:
-	mov bx, DISK_ERROR_MSG
-	call print_string
+	;mov bx, DISK_ERROR_MSG
+	;call print_string
 	jmp $
 
 DISK_ERROR_MSG:
