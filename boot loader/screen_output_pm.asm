@@ -1,3 +1,4 @@
+; screen output function in protected mode, with the use of vga(video graphic array)
 [bits 32]
 VGA_MEMORY_BUFFER equ 0xb8000		; start address of vga local buffer
 WHITE_ON_BLACK equ 0x0f			; black & white vga style printing 

@@ -8,20 +8,12 @@ mov [BOOT_STORAGE_DEVICE], dl
 mov bp, 0x9000
 mov sp, bp
 
-;mov bx, MSG_REAL_MODE
-;call print_string
-
 call load_kernel
 
 call switch_to_pm
 
-;jmp $
-
 ;The function load kernel code that start from sector 2, to the memory that start from KERNEL_OFFSET
 load_kernel:
-	;mov bx, MSG_LOAD_KERNEL
-	;call print_string
-	
 	mov bx, KERNEL_OFFSET
 	mov al, 15
 	mov dl, [BOOT_STORAGE_DEVICE]
@@ -34,13 +26,10 @@ load_kernel:
 [bits 32]
 
 BEGIN_PM:
-	mov ebx, MSG_PROTECTED_MODE
-	call print_string_pm
-
 	call switch_to_lm
 
 BEGIN_LM:
-;	call KERNEL_OFFSET
+	call KERNEL_OFFSET
 	jmp $
 
 %include "screen_output.asm"
@@ -57,6 +46,8 @@ MSG_REAL_MODE:
 
 MSG_PROTECTED_MODE:
 	db 'pm!', 13, 10, 0
+MSG_LONG_MODE:
+	db 'lm!', 13, 10, 0
 MSG_LOAD_KERNEL:
 	db 'loaded!', 13, 10, 0
 BOOT_STORAGE_DEVICE:
