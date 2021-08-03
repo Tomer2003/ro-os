@@ -37,6 +37,9 @@ BEGIN_PM:
 	mov ebx, MSG_PROTECTED_MODE
 	call print_string_pm
 
+	call check_cpuid
+	call check_long_mode
+
 	call KERNEL_OFFSET
 
 	jmp $
@@ -50,6 +53,8 @@ BEGIN_PM:
 %include "switch_to_pm.asm"
 %include "screen_output_pm.asm"
 %include "disk_io.asm"
+%include "cpuid.asm"
+
 HELLO_MSG:
 	db 'Hello, its my first boot loader!', 13, 10, 0
  
