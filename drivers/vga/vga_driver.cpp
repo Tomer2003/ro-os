@@ -25,7 +25,7 @@ unsigned short ScreenChar::getCellData() const
     unsigned short data;
     
     *((unsigned char*)&data) = m_AsciiCode;
-    *((unsigned char*)&data + 1) = (unsigned char)m_BackgroundColor << 4 + (unsigned char)m_ForegroundColor;
+    *((unsigned char*)&data + 1) = ((unsigned char)m_BackgroundColor << 4) + (unsigned char)m_ForegroundColor;
 
     return data;
 }
@@ -55,6 +55,22 @@ static void setCursorOffset(unsigned short offset)
     portWriteByte(REG_SCREEN_DATA, *((unsigned char*)&offset));
 }
 
+
+static void printCharAt(const ScreenChar& screenChar, char row, char col)
+{
+    unsigned char* videoMemoryPtr = (unsigned char*)VIDEO_ADDRESS;
+    unsigned short offset = getScreenOffset(row, col); 
+
+    if(screenChar.getAsciiCode() == '\n')
+    {
+        setCursorOffset(getScreenOffset(row + 1, 0));
+    }
+    else
+    {
+        *((unsigned short*)(videoMemoryPtr + offset)) = screenChar.getCellData();
+    }
+}
+
 void printChar(const ScreenChar& screenChar, char row, char col)
 {
     unsigned char* videoMemoryPtr = (unsigned char*)VIDEO_ADDRESS;
@@ -71,11 +87,11 @@ void printChar(const ScreenChar& screenChar, char row, char col)
 
     if(screenChar.getAsciiCode() == '\n')
     {
-        offset = getScreenOffset(MAX_COLS - 1, offset / (2 * MAX_COLS));
+        offset = getScreenOffset(offset / (2 * MAX_COLS), MAX_COLS - 1);
     }
     else
     {
-        *((unsigned short*)videoMemoryPtr) = screenChar.getCellData();
+        *((unsigned short*)(videoMemoryPtr + offset)) = screenChar.getCellData();
     }
 
     offset += 2;
@@ -83,7 +99,10 @@ void printChar(const ScreenChar& screenChar, char row, char col)
     {
         scrollScreen(1);
     }
-    setCursorOffset(offset);
+    else
+    {
+        setCursorOffset(offset);
+    }
 }
 
 void clearScreen()
@@ -98,15 +117,19 @@ void clearScreen()
     setCursorOffset(getScreenOffset(0, 0));
 }
 
-void printString(const ScreenChar*& const screenChars, char row, char col)
+void printString(const ScreenChar*& screenChars, char row, char col)
 {
     while((*screenChars).getAsciiCode())
     {
-        printChar(*screenChars, row, col++);
-        if(col == MAX_COLS - 1)
+        printChar(*screenChars, row, col);
+        if(col >= 0 && row >= 0)
         {
-            row++;
-            col = 0;
+            col++;
+            if(col == MAX_COLS - 1)
+            {
+                row++;
+                col = 0;
+            }
         }
     }
 }
@@ -115,17 +138,25 @@ void scrollScreen(unsigned char lines)
 {
     if(lines <= MAX_ROWS)
     {
-        memcpy((void*)getScreenOffset(0, 0), (void*)getScreenOffset(lines, 0), MAX_COLS * 2 * (MAX_ROWS - lines));
-
+        memcpy((void*)(getScreenOffset(0, 0) + VIDEO_ADDRESS), (void*)(getScreenOffset(lines, 0) + VIDEO_ADDRESS), MAX_COLS * 2 * (MAX_ROWS - lines));
 
         for(unsigned char row = MAX_ROWS - lines; row < MAX_ROWS; ++row)
         {
             for(unsigned char col = 0; col < MAX_COLS; ++col)
             {
-                printChar(ScreenChar(' ', Color::White, Color::Black), row, col);
+                printCharAt(ScreenChar(' ', Color::Black, Color::White), row, col);
             }
         }
 
         setCursorOffset(getScreenOffset(MAX_ROWS - lines, 0));
+    }
+}
+
+void printk(const char* str)
+{
+   while(*str)
+    {
+        printChar(ScreenChar(*str, Color::Black, Color::White), -1, -1);
+        str++;
     }
 }

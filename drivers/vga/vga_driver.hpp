@@ -7,7 +7,6 @@
 #define REG_SCREEN_DATA 0x3D5
 #define CURSOR_HIGH_BYTE_OFFSET 14
 #define CURSOR_LOW_BYTE_OFFSET 15
-# define WHITE_ON_BLACK_COLOR 0x0f
 
 enum class Color : unsigned char{
     Black = 0, Blue, Green, Cyan, Red, Magenta, Brown, LightGray, DarkGray, LightBlue, LightGreen, LightCyan, LightRed, Pink, Yellow, White
@@ -28,5 +27,7 @@ public:
 };
 
 void clearScreen();
+void scrollScreen(unsigned char lines);
 void printChar(const ScreenChar& screenChar, char row, char col);
-void printString(const ScreenChar*& const screenChars, char row, char col);
+void printString(const ScreenChar*& screenChars, char row, char col);
+void printk(const char* str);
