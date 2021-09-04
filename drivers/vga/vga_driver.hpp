@@ -30,4 +30,5 @@ void clearScreen();
 void scrollScreen(unsigned char lines);
 void printChar(const ScreenChar& screenChar, char row, char col);
 void printString(const ScreenChar*& screenChars, char row, char col);
-void printk(const char* str);
+void print(const char* str);
+void printUnsignedInt(unsigned int num);

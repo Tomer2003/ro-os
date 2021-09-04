@@ -4,7 +4,7 @@
 extern "C"
 {
 #endif
-    void memcpy( void * destination, const void * source, unsigned int num);
+    void utoa(unsigned int num, char* str);
 #ifdef __cplusplus
 }
 #endif

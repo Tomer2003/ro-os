@@ -4,8 +4,8 @@ os-image: kernel.bin boot_sect.bin
 boot_sect.bin:
 	nasm boot\ loader/boot_sect.asm -i./boot\ loader/  -f  bin -o boot_sect.bin
 
-kernel.bin: kernel_entry.o kernel.o port_io.o vga_driver.o memcpy.o
-	ld -o kernel.bin -Ttext 0x9500 kernel_entry.o memcpy.o port_io.o vga_driver.o kernel.o --oformat binary
+kernel.bin: kernel_entry.o kernel.o port_io.o vga_driver.o memcpy.o utoa.o reverse.o
+	ld -o kernel.bin -Ttext 0x9500 kernel_entry.o utoa.o reverse.o memcpy.o port_io.o vga_driver.o kernel.o --oformat binary
 
 kernel_entry.o: kernel_entry.asm
 	nasm kernel_entry.asm -f elf64 -o kernel_entry.o
@@ -21,6 +21,14 @@ vga_driver.o: drivers/vga/vga_driver.cpp
 
 memcpy.o: libc/strings/memcpy.c
 	gcc -ffreestanding -c libc/strings/memcpy.c -o memcpy.o
+
+utoa.o: libc/stdlib/utoa.c
+	gcc -ffreestanding -c libc/stdlib/utoa.c -o utoa.o
+
+reverse.o: libc/array_operations/reverse.c
+	gcc -ffreestanding -c libc/array_operations/reverse.c -o reverse.o
+
+
 
 
 clean:

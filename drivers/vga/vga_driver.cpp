@@ -1,8 +1,10 @@
 #include "vga_driver.hpp"
 #include "../port_io/port_io.hpp"
 #include "../../libc/include/strings.h"
+#include "../../libc/include/stdlib.h"
 
 #define BYTES_FOR_CHARACTER 2
+#define MAX_CHARS_OF_UNSIGNED_INT 10
 ScreenChar::ScreenChar(unsigned char asciiCode, const Color& backgroundColor, const Color& foregroundColor) : m_AsciiCode(asciiCode), m_BackgroundColor(backgroundColor), m_ForegroundColor(foregroundColor){}
 
 unsigned char ScreenChar::getAsciiCode() const
@@ -152,11 +154,18 @@ void scrollScreen(unsigned char lines)
     }
 }
 
-void printk(const char* str)
+void print(const char* str)
 {
    while(*str)
     {
         printChar(ScreenChar(*str, Color::Black, Color::White), -1, -1);
         str++;
     }
+}
+
+void printUnsignedInt(unsigned int num)
+{
+    char numStr[MAX_CHARS_OF_UNSIGNED_INT + 1];
+    utoa(num, numStr);
+    print(numStr);
 }

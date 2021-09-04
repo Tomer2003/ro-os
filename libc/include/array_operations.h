@@ -4,7 +4,7 @@
 extern "C"
 {
 #endif
-    void memcpy( void * destination, const void * source, unsigned int num);
+    void reverse(char* array, unsigned int size);
 #ifdef __cplusplus
 }
 #endif
