@@ -1,6 +1,6 @@
 #pragma once
 
-class GtdSelector{
+class __attribute__((__packed__)) GtdSelector{
 private:
     unsigned short selector;
 
@@ -35,7 +35,7 @@ public:
     unsigned short getSelector() const;
 };
 
-class IdtOptions
+class __attribute__((__packed__)) IdtOptions
 {
 private:
     unsigned short options;
@@ -73,11 +73,15 @@ public:
     IdtOptions& setInterrupStackTableIndex(unsigned char index);
 };
 
-typedef struct __attribute__((__packed__)) idtEntry{
+class __attribute__((__packed__)) IdtEntry{
+private:
     unsigned short pointerLow;
     GtdSelector gdtSelector;
     IdtOptions idtOptions;
     unsigned short pointerMid;
     unsigned int pointerEnd;
     unsigned int reserved;
-}idtEntry;
+
+public:
+    IdtEntry(const GtdSelector& gdtSelector, const IdtOptions& idtOptions, void (*handlerFunction)());
+};

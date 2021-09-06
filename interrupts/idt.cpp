@@ -33,7 +33,7 @@ unsigned short GtdSelector::getSelector() const
     return selector;
 }
 
-IdtOptions::IdtOptions()
+IdtOptions::IdtOptions() : options(0)
 {
     setBit(&options, 9, 1);
     setBit(&options, 10, 1);
@@ -41,7 +41,7 @@ IdtOptions::IdtOptions()
     setBit(&options, 12, 0);
 }
 
-IdtOptions::IdtOptions(bool present, bool interruptGate, unsigned char dpl, unsigned char index)
+IdtOptions::IdtOptions(bool present, bool interruptGate, unsigned char dpl, unsigned char index) : options(0)
 {
     setBit(&options, 9, 1);
     setBit(&options, 10, 1);
@@ -78,5 +78,4 @@ IdtOptions& IdtOptions::setPresent(bool present)
     return *this;
 }
 
-
-
+IdtEntry::IdtEntry(const GtdSelector& gdtSelector, const IdtOptions& idtOptions, void (*handlerFunction)()) : gdtSelector(gdtSelector), idtOptions(idtOptions), pointerLow(*((unsigned short*)handlerFunction)), pointerMid(*((unsigned short*)handlerFunction + 1)), pointerEnd(*((unsigned int*)handlerFunction + 1)){}

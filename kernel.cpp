@@ -20,5 +20,4 @@ void main()
 	selector.setTI(1);
 	printUnsignedInt(selector.getSelector());
 	print("\n");
-	printUnsignedInt(sizeof(selector));
 }
