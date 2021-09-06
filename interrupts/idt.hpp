@@ -12,7 +12,7 @@ public:
     /**
      * @brief set index of descriptor.
      * 
-     * @param index - index of descriptor.
+     * @param index - if greater than 2^13 - 1, so 2^13 - 1 in default.
      */
     void setIndex(unsigned short index);
     /**
@@ -27,6 +27,12 @@ public:
      * @param rpl - privilege level = 0|1|2|3, if larger so 3 in default.
      */
     void setRPL(unsigned char rpl);
+    /**
+     * @brief Get the Selector object
+     * 
+     * @return unsigned short 
+     */
+    unsigned short getSelector() const;
 };
 
 typedef struct __attribute__((__packed__)) idtEntry{
