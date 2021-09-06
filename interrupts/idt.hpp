@@ -12,21 +12,21 @@ public:
     /**
      * @brief set index of descriptor.
      * 
-     * @param index - if greater than 2^13 - 1, so 2^13 - 1 in default.
+     * @param index - val of index.
      */
-    void setIndex(unsigned short index);
+    GtdSelector& setIndex(unsigned short index);
     /**
      * @brief set wich table to use.
      * 
      * @param ti - true for gdt, false for ldt.
      */
-    void setTI(bool ti);
+    GtdSelector& setTI(bool ti);
     /**
      * @brief  set recent privilege level.
      * 
-     * @param rpl - privilege level = 0|1|2|3, if larger so 3 in default.
+     * @param rpl - privilege level = 0|1|2|3.
      */
-    void setRPL(unsigned char rpl);
+    GtdSelector& setRPL(unsigned char rpl);
     /**
      * @brief Get the Selector object
      * 
@@ -35,10 +35,48 @@ public:
     unsigned short getSelector() const;
 };
 
+class IdtOptions
+{
+private:
+    unsigned short options;
+
+public:
+    IdtOptions();
+    IdtOptions(bool present, bool interruptGate, unsigned char dpl, unsigned char index);
+    /**
+     * @brief set present field
+     * 
+     * @param present - present
+     * @return IdtOptions& - same object 
+     */
+    IdtOptions& setPresent(bool present);
+    /**
+     * @brief Set the Interrupt Gate field
+     * 
+     * @param interruptGate - If this bit is 0, interrupts are disabled when this handler is called
+     * @return IdtOptions& - same object 
+     */
+    IdtOptions& setInterruptGate(bool interruptGate);
+    /**
+     * @brief set Descriptor Privilege Level field
+     * 
+     * @param dpl - The minimal privilege level required for calling this handler
+     * @return IdtOptions& - same object 
+     */
+    IdtOptions& setDPL(unsigned char dpl);
+    /**
+     * @brief Set the Interrup Stack Table Index field
+     * 
+     * @param index - 0: Don't switch stacks, 1-7: Switch to the n-th stack in the Interrupt Stack Table when this handler is called
+     * @return IdtOptions& - same object 
+     */
+    IdtOptions& setInterrupStackTableIndex(unsigned char index);
+};
+
 typedef struct __attribute__((__packed__)) idtEntry{
     unsigned short pointerLow;
-    //gdt selector
-    //options
+    GtdSelector gdtSelector;
+    IdtOptions idtOptions;
     unsigned short pointerMid;
     unsigned int pointerEnd;
     unsigned int reserved;
