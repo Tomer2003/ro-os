@@ -1,37 +1,6 @@
 #include "idt.hpp"
 #include "../libc/include/bits_operations.h"
-
-GtdSelector::GtdSelector() : selector(0){};
-GtdSelector::GtdSelector(unsigned short selector) : selector(selector){};
-GtdSelector::GtdSelector(unsigned short index, bool ti, unsigned char rpl)
-{
-    setIndex(index);
-    setTI(ti);
-    setRPL(rpl);
-}
-
-GtdSelector& GtdSelector::setIndex(unsigned short index)
-{
-    setBits(&selector, 3, 13, &index);
-    return *this;
-}
-
-GtdSelector& GtdSelector::setTI(bool ti)
-{
-    setBits(&selector, 2, 1, &ti);
-    return *this;
-}
-
-GtdSelector& GtdSelector::setRPL(unsigned char rpl)
-{
-    setBits(&selector, 0, 2, &rpl);
-    return *this;
-}
-
-unsigned short GtdSelector::getSelector() const
-{
-    return selector;
-}
+#include "../libc/include/strings.h"
 
 IdtOptions::IdtOptions() : options(0)
 {
@@ -41,7 +10,7 @@ IdtOptions::IdtOptions() : options(0)
     setBit(&options, 12, 0);
 }
 
-IdtOptions::IdtOptions(bool present, bool interruptGate, unsigned char dpl, unsigned char index) : options(0)
+IdtOptions::IdtOptions(bool present, bool dissable, unsigned char dpl, unsigned char index) : options(0)
 {
     setBit(&options, 9, 1);
     setBit(&options, 10, 1);
@@ -49,7 +18,7 @@ IdtOptions::IdtOptions(bool present, bool interruptGate, unsigned char dpl, unsi
     setBit(&options, 12, 0);
     setDPL(dpl);
     setInterrupStackTableIndex(index);
-    setInterruptGate(interruptGate);
+    dissableInterrupts(dissable);
     setPresent(present);
 }
 
@@ -66,9 +35,9 @@ IdtOptions& IdtOptions::setInterrupStackTableIndex(unsigned char index)
     return *this;
 }
 
-IdtOptions& IdtOptions::setInterruptGate(bool interruptGate)
+IdtOptions& IdtOptions::dissableInterrupts(bool dissable)
 {
-    setBit(&options, 8, interruptGate);
+    setBit(&options, 8, !dissable);
     return *this;
 }
 
@@ -78,4 +47,42 @@ IdtOptions& IdtOptions::setPresent(bool present)
     return *this;
 }
 
-IdtEntry::IdtEntry(const GtdSelector& gdtSelector, const IdtOptions& idtOptions, void (*handlerFunction)()) : gdtSelector(gdtSelector), idtOptions(idtOptions), pointerLow(*((unsigned short*)handlerFunction)), pointerMid(*((unsigned short*)handlerFunction + 1)), pointerEnd(*((unsigned int*)handlerFunction + 1)){}
+unsigned short IdtOptions::getOptionsVal() const
+{
+    return options;
+}
+
+IdtEntry::IdtEntry(const GtdSelector& gdtSelector, const IdtOptions& idtOptions, void (*handlerFunction)()) : gdtSelector(gdtSelector), idtOptions(idtOptions), pointerLow(*((unsigned short*)&handlerFunction)), pointerMid(*((unsigned short*)&handlerFunction + 1)), pointerEnd(*((unsigned int*)&handlerFunction + 1)){}
+IdtEntry::IdtEntry(){}
+
+const GtdSelector& IdtEntry::getGdtSelector() const
+{
+    return gdtSelector;
+}
+
+const IdtOptions& IdtEntry::getIdtOptions() const
+{
+    return idtOptions;
+}
+
+IDT::IDT()
+{
+    memset(idtEntries, 0, sizeof(IdtEntry) * IDT_ENTRIES_NUM);
+    idtDescriptor.base = idtEntries;
+    idtDescriptor.limit = sizeof(IdtEntry) * IDT_ENTRIES_NUM;
+}
+
+void IDT::addEntry(const IdtEntry& entry, unsigned char entryIndex)
+{
+    idtEntries[entryIndex] = entry;
+}
+
+void IDT::load()
+{
+   __asm__ __volatile__("lidt %0" :: "m"(idtDescriptor));
+}
+
+const IdtEntry& IDT::getEntry(unsigned char entryIndex) const
+{
+    return idtEntries[entryIndex];
+}

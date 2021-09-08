@@ -1,39 +1,7 @@
 #pragma once
+#include "../gdt/gdt.hpp"
 
-class __attribute__((__packed__)) GtdSelector{
-private:
-    unsigned short selector;
-
-public:
-    GtdSelector(unsigned short selector);
-    GtdSelector(unsigned short index, bool ti, unsigned char rpl);
-    GtdSelector();
-
-    /**
-     * @brief set index of descriptor.
-     * 
-     * @param index - val of index.
-     */
-    GtdSelector& setIndex(unsigned short index);
-    /**
-     * @brief set wich table to use.
-     * 
-     * @param ti - true for gdt, false for ldt.
-     */
-    GtdSelector& setTI(bool ti);
-    /**
-     * @brief  set recent privilege level.
-     * 
-     * @param rpl - privilege level = 0|1|2|3.
-     */
-    GtdSelector& setRPL(unsigned char rpl);
-    /**
-     * @brief Get the Selector object
-     * 
-     * @return unsigned short 
-     */
-    unsigned short getSelector() const;
-};
+#define IDT_ENTRIES_NUM 256 
 
 class __attribute__((__packed__)) IdtOptions
 {
@@ -42,7 +10,7 @@ private:
 
 public:
     IdtOptions();
-    IdtOptions(bool present, bool interruptGate, unsigned char dpl, unsigned char index);
+    IdtOptions(bool present, bool dissable, unsigned char dpl, unsigned char index);
     /**
      * @brief set present field
      * 
@@ -51,12 +19,12 @@ public:
      */
     IdtOptions& setPresent(bool present);
     /**
-     * @brief Set the Interrupt Gate field
+     * @brief disable interrupts
      * 
      * @param interruptGate - If this bit is 0, interrupts are disabled when this handler is called
      * @return IdtOptions& - same object 
      */
-    IdtOptions& setInterruptGate(bool interruptGate);
+    IdtOptions& dissableInterrupts(bool dissable);
     /**
      * @brief set Descriptor Privilege Level field
      * 
@@ -71,10 +39,17 @@ public:
      * @return IdtOptions& - same object 
      */
     IdtOptions& setInterrupStackTableIndex(unsigned char index);
+    /**
+     * @brief get options val
+     * 
+     * @return unsigned short - options val
+     */
+    unsigned short getOptionsVal() const;
 };
 
 class __attribute__((__packed__)) IdtEntry{
-private:
+//private:
+public:
     unsigned short pointerLow;
     GtdSelector gdtSelector;
     IdtOptions idtOptions;
@@ -83,5 +58,54 @@ private:
     unsigned int reserved;
 
 public:
+    IdtEntry();
     IdtEntry(const GtdSelector& gdtSelector, const IdtOptions& idtOptions, void (*handlerFunction)());
+    /**
+     * @brief get gdt selector
+     * 
+     * @return const GtdSelector& - gdt selector 
+     */
+    const GtdSelector& getGdtSelector() const;
+    /**
+     * @brief get idt options
+     * 
+     * @return const IdtOptions& - idt options
+     */
+    const IdtOptions& getIdtOptions() const;
+};
+
+typedef struct __attribute__((__packed__)) IdtDescriptor
+{
+    unsigned short limit;
+    void* base;
+}IdtDescriptor;
+
+
+class IDT
+{
+private:
+    IdtEntry idtEntries[IDT_ENTRIES_NUM];
+    IdtDescriptor idtDescriptor;
+
+public:
+    IDT();
+    /**
+     * @brief add entry to idt
+     * 
+     * @param entry - entry description
+     * @param entryIndex - index of entry in idt
+     */
+    void addEntry(const IdtEntry& entry, unsigned char entryIndex);
+    /**
+     * @brief load idt descriptor to the cpu
+     * 
+     */
+    void load();
+    /**
+     * @brief get entry of idt
+     * 
+     * @param entryIndex - index of entry in idt
+     * @return const IdtEntry& - entry description
+     */
+    const IdtEntry& getEntry(unsigned char entryIndex) const;
 };
