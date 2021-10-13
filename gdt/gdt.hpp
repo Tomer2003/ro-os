@@ -16,7 +16,7 @@ public:
      */
     GtdSelector& setIndex(unsigned short index);
     /**
-     * @brief set wich table to use.
+     * @brief set witch table to use.
      * 
      * @param ti - true for gdt, false for ldt.
      */

@@ -4,16 +4,21 @@
 #include "interrupts/idt.hpp"
 void* _Unwind_Resume;
 void* __gxx_personality_v0;
-
-void printZeroDivError()
+void divideByZeroHandler(const ExceptionStackFrame& exceptionStackFrame)
 {
-	print("Exception: zero div\n");
+	print("Exception divide by zero!!!\n");
+	exceptionStackFrame.show();
+}
+
+__attribute__((naked)) void divideByZeroWrapper()
+{
+	__asm__ __volatile__("movq %%rsp, %%rdi\n\t"
+						"call %0" ::"d"(divideByZeroHandler):"%rdi");
 	while(true)
 	{
 
 	}
 }
-
 void main()
 {
 	clearScreen();
@@ -34,7 +39,7 @@ void main()
 	print("\n");
 
 	IDT idt;
-	idt.addEntry(IdtEntry(getCsSelector(), IdtOptions(1, 1, 0, 0), printZeroDivError), 0);
+	idt.addEntry(IdtEntry(getCsSelector(), IdtOptions(1, 1, 0, 0), divideByZeroWrapper), 0);
 	idt.load();
 	print("selector = ");
 	printUnsignedInt(idt.getEntry(0).getGdtSelector().getSelector());
@@ -50,12 +55,12 @@ void main()
 	printUnsignedInt(idt.getEntry(0).pointerLow);
 	print("\n");
 	print("pointer = ");
-	printUnsignedInt(*((unsigned int*)&printZeroDivError + 1));
+	/*printUnsignedInt(*((unsigned int*)&printZeroDivError + 1));
 	print(", ");
 	printUnsignedInt(*((unsigned short*)&printZeroDivError + 1));
 	print(", ");
 	printUnsignedInt(*((unsigned short*)&printZeroDivError));
-	print("\n");
+	print("\n");*/
 	int a = 3/0;
 	print("\npassed!!!!!!!!!\n");
 	while(true)

@@ -10,7 +10,7 @@ private:
 
 public:
     IdtOptions();
-    IdtOptions(bool present, bool dissable, unsigned char dpl, unsigned char index);
+    IdtOptions(bool present, bool disable, unsigned char dpl, unsigned char index);
     /**
      * @brief set present field
      * 
@@ -24,7 +24,7 @@ public:
      * @param interruptGate - If this bit is 0, interrupts are disabled when this handler is called
      * @return IdtOptions& - same object 
      */
-    IdtOptions& dissableInterrupts(bool dissable);
+    IdtOptions& disableInterrupts(bool disable);
     /**
      * @brief set Descriptor Privilege Level field
      * 
@@ -109,3 +109,18 @@ public:
      */
     const IdtEntry& getEntry(unsigned char entryIndex) const;
 };
+
+class __attribute__((__packed__)) ExceptionStackFrame
+{
+private:
+    unsigned long instructionPointer;
+    unsigned long codeSegmentSelector;
+    unsigned long flagsRegister;
+    unsigned long stackPointer;
+    unsigned long stackSegment;
+
+public:
+    void show() const;
+};
+
+//void printZeroDivError();

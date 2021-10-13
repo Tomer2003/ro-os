@@ -1,6 +1,7 @@
 #include "idt.hpp"
 #include "../libc/include/bits_operations.h"
 #include "../libc/include/strings.h"
+#include "../drivers/vga/vga_driver.hpp"
 
 IdtOptions::IdtOptions() : options(0)
 {
@@ -10,7 +11,7 @@ IdtOptions::IdtOptions() : options(0)
     setBit(&options, 12, 0);
 }
 
-IdtOptions::IdtOptions(bool present, bool dissable, unsigned char dpl, unsigned char index) : options(0)
+IdtOptions::IdtOptions(bool present, bool disable, unsigned char dpl, unsigned char index) : options(0)
 {
     setBit(&options, 9, 1);
     setBit(&options, 10, 1);
@@ -18,7 +19,7 @@ IdtOptions::IdtOptions(bool present, bool dissable, unsigned char dpl, unsigned 
     setBit(&options, 12, 0);
     setDPL(dpl);
     setInterrupStackTableIndex(index);
-    dissableInterrupts(dissable);
+    disableInterrupts(disable);
     setPresent(present);
 }
 
@@ -35,9 +36,9 @@ IdtOptions& IdtOptions::setInterrupStackTableIndex(unsigned char index)
     return *this;
 }
 
-IdtOptions& IdtOptions::dissableInterrupts(bool dissable)
+IdtOptions& IdtOptions::disableInterrupts(bool disable)
 {
-    setBit(&options, 8, !dissable);
+    setBit(&options, 8, !disable);
     return *this;
 }
 
@@ -85,4 +86,19 @@ void IDT::load()
 const IdtEntry& IDT::getEntry(unsigned char entryIndex) const
 {
     return idtEntries[entryIndex];
+}
+
+void ExceptionStackFrame::show() const
+{
+    print("instruction pointer = ");
+    printUnsignedInt(instructionPointer);
+    print("\ncode segment = ");
+    printUnsignedInt(codeSegmentSelector);
+    print("\ncpu flags = ");
+    printUnsignedInt(flagsRegister);
+    print("\nstack pointer = ");
+    printUnsignedInt(stackPointer);
+    print("\nstack segment = ");
+    printUnsignedInt(stackSegment);
+    print("\n");
 }
