@@ -102,3 +102,29 @@ void ExceptionStackFrame::show() const
     printUnsignedInt(stackSegment);
     print("\n");
 }
+
+void ErrorCode::show() const
+{
+    print("error code: ");
+    if(getBit((void*)&errorCode, 0))
+    {
+        print("PROTECTION_VIOLATION ");
+    }
+    if(getBit((void*)&errorCode, 1))
+    {
+        print("CAUSED_BY_WRITE ");
+    }
+    if(getBit((void*)&errorCode, 2))
+    {
+        print("USER_MODE ");
+    }
+    if(getBit((void*)&errorCode, 3))
+    {
+        print("MALFORMED_TABLE ");
+    }
+    if(getBit((void*)&errorCode, 4))
+    {
+        print("INSTRUCTION_FETCH ");
+    }
+    print("\n");
+}

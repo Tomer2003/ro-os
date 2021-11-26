@@ -170,7 +170,3 @@ void printUnsignedInt(unsigned int num)
     print(numStr);
 }
 
-void print(const char* str, const char* format)
-{
-    
-}

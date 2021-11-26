@@ -1,7 +1,34 @@
 #pragma once
 #include "../gdt/gdt.hpp"
+#include "../libc/include/regs_operations.h"
 
 #define IDT_ENTRIES_NUM 256 
+
+#define generateHandlerFunctionWithErrorCode(wrapper, handler)\
+__attribute__((naked)) void wrapper()\
+{\
+    pushCallerSaversRegs()\
+    __asm__ __volatile__("movq %%rsp, %%rdi\n\t"\
+						"addq $80, %%rdi\n\t"\
+                        "movq 72(%%rsp), %%rsi\n\t"\
+                        "subq $8, %%rsp\n\t"\
+						"call %0\n\t"\
+                        "addq $8, %%rsp" ::"d"(handler):"%rdi");\
+    popCallerSaversRegs()\
+    __asm__ __volatile__("addq $8, %%rsp\n\t"\
+                        "iretq":::);\
+}
+
+#define generateHandlerFunction(wrapper, handler)\
+__attribute__((naked)) void wrapper()\
+{\
+    pushCallerSaversRegs()\
+	__asm__ __volatile__("movq %%rsp, %%rdi\n\t"\
+						"addq $72, %%rdi\n\t"\
+						"call %0" ::"d"(handler):"%rdi");\
+    popCallerSaversRegs()\
+    __asm__ __volatile__("iretq":::);\
+}
 
 class __attribute__((__packed__)) IdtOptions
 {
@@ -48,8 +75,7 @@ public:
 };
 
 class __attribute__((__packed__)) IdtEntry{
-//private:
-public:
+private:
     unsigned short pointerLow;
     GtdSelector gdtSelector;
     IdtOptions idtOptions;
@@ -120,7 +146,22 @@ private:
     unsigned long stackSegment;
 
 public:
+    /**
+     * @brief Print the exception stack frame.
+     * 
+     */
     void show() const;
 };
 
-//void printZeroDivError();
+class ErrorCode
+{
+private:
+    unsigned long errorCode;
+
+public:
+    /**
+     * @brief Print the fields of error code.
+     * 
+     */
+    void show() const;
+};

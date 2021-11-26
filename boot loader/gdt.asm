@@ -45,8 +45,9 @@ gdt_lm_code_segment_descriptor:
 	dw 0x0	 	; Limit (0-15 bits)
 	dw 0x0			; Base  (0-15 bits)
 	db 0x0			; Base  (16-23 bits)
+	;db 10011010b		; flags
 	db 10011010b		; flags
-	db 10101111b		; flags, Limit (16-19 bits)
+	db 00100000b		; flags, Limit (16-19 bits)
 	db 0x0			; Base (24-31 bits)
 
 gdt_lm_data_segment_descriptor:
@@ -54,7 +55,7 @@ gdt_lm_data_segment_descriptor:
 	dw 0x0			; Base  (0-15 bits)
 	db 0x0			; Base  (16-23 bits)
 	db 10010010b	; flags
-	db 00000000b	; flags, Limit (16-19 bits)
+	db 00100000b	; flags, Limit (16-19 bits)
 	db 0x0			; Base (24-31 bits)
 
 gdt_lm_end:
