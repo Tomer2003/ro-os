@@ -15,7 +15,7 @@ call switch_to_pm
 ;The function load kernel code that start from sector 2, to the memory that start from KERNEL_OFFSET
 load_kernel:
 	mov bx, KERNEL_OFFSET
-	mov al, 15
+	mov al, 50
 	mov dl, [BOOT_STORAGE_DEVICE]
 	mov dh, 0x0
 	mov ch, 0x0

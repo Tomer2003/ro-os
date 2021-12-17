@@ -85,7 +85,6 @@ void GDT::addSegmentDescriptor(char index, char isExecutable, char descriptorTyp
 {
     if(index >= 0 && index < NUMBER_OF_GDT_ENTRIES && privilege >= 0 && privilege <= 3)
     {
-        print("updating!!!!!!!!!!!!\n");
         setBit((long*)segmentDescriptors + index, 43, isExecutable);
         setBit((long*)segmentDescriptors + index, 44, descriptorType);
         setBits((long*)segmentDescriptors + index, 45, 2, (void*)&privilege);
@@ -98,9 +97,6 @@ void GDT::addSegmentDescriptor(char index, char isExecutable, char descriptorTyp
 void GDT::addTssDescriptor(char index, const TSS& tss)
 {
     unsigned short sizeOfTss = sizeof(TSS) - 1;
-    print("size = ");
-    printUnsignedInt(sizeOfTss);
-    print("\n");
     const void* tssPtr = &tss;
     if(index >= 0 && index < NUMBER_OF_GDT_ENTRIES)
     {

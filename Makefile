@@ -4,8 +4,8 @@ os-image: kernel.bin boot_sect.bin
 boot_sect.bin:
 	nasm boot\ loader/boot_sect.asm -i./boot\ loader/  -f  bin -o boot_sect.bin
 
-kernel.bin: kernel_entry.o kernel.o port_io.o vga_driver.o memcpy.o utoa.o reverse.o idt.o setBits.o gdt.o memset.o control_regs.o
-	ld -o kernel.bin -Ttext 0x9500 kernel_entry.o utoa.o reverse.o memcpy.o port_io.o idt.o vga_driver.o kernel.o gdt.o memset.o setBits.o control_regs.o --oformat binary
+kernel.bin: kernel_entry.o kernel.o port_io.o vga_driver.o memcpy.o utoa.o reverse.o idt.o setBits.o gdt.o memset.o control_regs.o pic.o
+	ld -o kernel.bin -Ttext 0x9500 kernel_entry.o utoa.o reverse.o memcpy.o port_io.o idt.o vga_driver.o kernel.o gdt.o memset.o setBits.o control_regs.o pic.o --oformat binary
 
 kernel_entry.o: kernel_entry.asm
 	nasm kernel_entry.asm -f elf64 -o kernel_entry.o
@@ -21,6 +21,9 @@ vga_driver.o: drivers/vga/vga_driver.cpp
 
 idt.o: interrupts/idt.cpp
 	g++ -ffreestanding -c interrupts/idt.cpp -o idt.o
+
+pic.o: interrupts/pic.cpp
+	g++ -ffreestanding -c interrupts/pic.cpp -o pic.o
 
 memset.o: libc/strings/memset.c
 	gcc -ffreestanding -c libc/strings/memset.c -o memset.o
